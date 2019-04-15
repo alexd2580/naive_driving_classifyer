@@ -19,7 +19,9 @@ def chunks(data, chunk_size):
         if index % chunk_size == 0:
             yield accum
             accum = []
-    yield accum
+
+    if accum:
+        yield accum
 
 
 def downsample_average(data, downsampled_size=None, chunk_size=None):
@@ -77,6 +79,9 @@ def extract_features(data):
 
     return {
         'time': time,
+        'x': x,
+        'y': y,
+        'z': z,
         'combined': combined,
         **analyze_windows(combined, 100),
     }
@@ -85,6 +90,8 @@ def extract_features(data):
 datapath = pathlib.Path("data")
 
 for filepath in datapath.iterdir():
+    plt.title(str(filepath))
+
     data = read_accelerometer_file(filepath)
     measurements = len(data)
     features = extract_features(data)
@@ -98,10 +105,13 @@ for filepath in datapath.iterdir():
         feature = downsample_average(features[feature_key], chunk_size=chunk_size)
         plt.plot(time, feature, color=color, label=feature_key)
 
-    plot_feature('std100', color='black')
+    plot_feature('x', color='red')
+    plot_feature('y', color='green')
+    plot_feature('z', color='blue')
+    # plot_feature('std100', color='black')
     # plot_feature('min100', color='red')
     # plot_feature('max100', color='blue')
-    plot_feature('diff100', color='green')
+    # plot_feature('diff100', color='green')
 
     plt.legend(loc='best')
     plt.show()
